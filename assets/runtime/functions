@@ -1233,7 +1233,11 @@ map_uidgid() {
     echo "Mapping UID and GID for ${GITLAB_USER}:${GITLAB_USER} to $USERMAP_UID:$USERMAP_GID"
     groupmod -o -g ${USERMAP_GID} ${GITLAB_USER}
     sed -i -e "s|:${USERMAP_ORIG_UID}:${USERMAP_GID}:|:${USERMAP_UID}:${USERMAP_GID}:|" /etc/passwd
-    find ${GITLAB_HOME} -path ${GITLAB_DATA_DIR}/\* -prune -o -print0 | xargs -0 chown -h ${GITLAB_USER}:
+    for folder in $(ls -d ${GITLAB_HOME}/*); do
+      if [ ! $folder == $GITLAB_DATA_DIR ]; then
+        chown -h ${GITLAB_USER}: $folder
+      fi
+    done
   fi
 }
 
